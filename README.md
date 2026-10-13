@@ -2,6 +2,7 @@
 
 > **Korean Guide (한국어 설명서)**: [`README_KO.md`](README_KO.md)  
 > **Engineering Report (공학 분석서)**: [`ENGINEERING_REPORT.md`](ENGINEERING_REPORT.md)  
+> **Best 100.0% Paradox Study (100.0% 최고점 역설 연구)**: [`BEST_SCORE_PARADOX.md`](BEST_SCORE_PARADOX.md)  
 > **Lowest Score Study (0.0% 최저 점수 연구)**: [`LOWEST_SCORE_REPORT.md`](LOWEST_SCORE_REPORT.md)  
 > **Phantom Circle Study (투명 유령 원 연구)**: [`PHANTOM_CIRCLE.md`](PHANTOM_CIRCLE.md)  
 > **Paradox Shapes (역설의 다각형)**: [`PARADOX_SHAPES.md`](PARADOX_SHAPES.md)  
@@ -16,6 +17,7 @@ A zero-dependency vanilla JavaScript solver that guarantees a 100% win rate (**9
 ## Highlights
 
 - **100% Flawless Rate**: Hits the game's hardcoded mathematical score ceiling (`99.9%`) on every run.
+- **100.0% Best Score Paradox Explained**: Rigorous reverse-engineering proof of why the footer sporadically displays **`Best: 100.0%`** despite the 999 ceiling, due to engine source-of-truth discrepancy and float half-up rounding ($\ge 99.95\%$). See [`BEST_SCORE_PARADOX.md`](BEST_SCORE_PARADOX.md).
 - **0.0% Absolute Zero Solver**: Features [`lowest_circle.js`](lowest_circle.js) to deterministically hit the lowest possible score (**0.0%**) under full valid status without triggering engine failure states ("Too slow", "Wrong way", "Ended too early").
 - **Spin Bug Neutralized**: Fixes the alternating score drop ($99.9\% \to \approx 72\%$) caused by the game's post-win CSS rotation animation (`svg-container-spin`).
 - **Zero Event Drops**: Partitions the 360-degree arc into 300 calibrated steps ($h = 7.33\,\text{px} > 6\,\text{px}$), bypassing the internal sample discard filter.
@@ -49,6 +51,7 @@ perfect-circle-solver/
 ├── README.md               # English Overview
 ├── README_KO.md            # Korean In-Depth Narrative
 ├── ENGINEERING_REPORT.md   # Mathematical reverse-engineering report
+├── BEST_SCORE_PARADOX.md   # 100.0% Best Score paradox reverse-engineering report
 ├── LOWEST_SCORE_REPORT.md  # 0.0% Absolute Zero formal research report
 ├── PHANTOM_CIRCLE.md       # Invisible off-screen score synthesis guide
 ├── PARADOX_SHAPES.md       # Impossible polygon 99.9% paradox guide

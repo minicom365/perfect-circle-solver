@@ -124,3 +124,27 @@ $$r = o \cdot (2 - k)$$
 
 An arbitrary desired score (e.g. $99.9\%$, $77.7\%$, $50.0\%$, $0.0\%$) can be deterministically synthesized on a completely transparent, blank canvas. The implementation is provided in [`phantom_circle.js`](phantom_circle.js) and analyzed in [`PHANTOM_CIRCLE.md`](PHANTOM_CIRCLE.md).
 
+---
+
+## 7. The 100.0% Best Score Paradox: Source-of-Truth Discrepancy & Soft-Lock
+
+A long-standing enigma in the Neal.fun community is the sporadic observation of **`Best: 100.0%`** in the footer, even though the maximum round score is capped at `99.9%` (`score = 999`).
+
+### 7.1 Architecture Divergence
+Decompilation of `23eea58.js` identifies that:
+1. **Round Score (`this.score`)**:
+   $$\text{score} = \min\left(\text{round}\left(1000 \cdot \frac{c}{d}\right),\, 999\right)$$
+   Clamped to `999` (renders as `99.9%` maximum).
+2. **High Score Record (`this.best`)**:
+   $$\text{this.best} = \frac{c}{d}$$
+   Stored as an **uncapped 64-bit IEEE-754 float** directly from the angular integral ratio $\frac{c}{d} \in [0.0, 1.0]$.
+3. **Display Formatter (`bestString`)**:
+   $$\text{bestString} = (100 \cdot \text{this.best})\text{.toFixed(1)} + "\%"$$
+   Due to half-up rounding, any radial accuracy $\frac{c}{d} \ge 0.99950000$ formats to **`"100.0%"`**.
+
+### 7.2 The 2-Game Phase Lag & Permanent Soft-Lock
+- **Game 1 (Break Record)**: $\frac{c}{d} \ge 0.9995 \implies \text{this.best} \ge 0.9995$. The engine sets `showBest = false` and flashes `"Perfect circle"`. The player does not see `Best: 100.0%` yet.
+- **Game 2 (Follow-up)**: The player draws a subsequent stroke. Since $\text{round}(1000 \cdot \text{this.best}) = 1000$ and $\text{score} \le 999$, the condition `score > round(1000 * best)` is permanently `false`.
+- **Outcome**: The engine preserves `showBest = true`, permanently rendering **`Best: 100.0%`** until page reload (`F5`). Full derivations and reproduction protocols are documented in [`BEST_SCORE_PARADOX.md`](BEST_SCORE_PARADOX.md).
+
+
