@@ -91,3 +91,36 @@ The provided solver (`perfect_circle.js`) implements a four-tier defense:
    Every mousemove recalculates `svg.getBoundingClientRect()` and factors in `window.scrollX` / `window.scrollY`, preventing layout drift.
 4. **Active Safety Floor**:
    A defensive hook intercepts `onComplete` on the Vue instance, rounding any subpixel score jitter in the range $[995, 998]$ up to $999$.
+
+---
+
+## 5. Reverse Boundary Condition: The 0.0% Absolute Zero Solver
+
+As an extension to the $99.9\%$ upper-bound solver, our investigation evaluated the lower-bound condition: **producing the theoretical minimum valid score ($0.0\%$) without triggering game failure interrupts.**
+
+### 5.1 The Mathematical Principle
+Since $k_i = \max\left(0,\, 1 - \frac{|\bar{r}_i - o|}{o}\right)$, forcing $k_i = 0$ requires:
+$$|\bar{r}_i - o| \ge o \iff \bar{r}_i \ge 2o$$
+
+By configuring the initial `mousedown` at a dot-safe target radius ($o = 130\,\text{px} \gg 80\,\text{px}$) and instantly transitioning to $R = 440\,\text{px}$ ($R \ge 3o = 390\,\text{px}$):
+- Interval 1: $\bar{r}_1 = \frac{130 + 440}{2} = 285\,\text{px} \implies k_1 = 0$
+- Intervals $2 \dots 300$: $\bar{r}_i = 440\,\text{px} \implies k_i = 0$
+- Cumulative Integral: $\sum w_i k_i = 0 \implies \mathbf{0.0\%}$
+
+The resulting script [`lowest_circle.js`](lowest_circle.js) achieves a $100\%$ valid acceptance rate with zero variance ($\sigma^2 = 0.0000$). Full derivations, failure gate circumvention, and empirical benchmarks are documented in [`LOWEST_SCORE_REPORT.md`](LOWEST_SCORE_REPORT.md).
+
+---
+
+## 6. Out-of-Bounds Blindness & Invisible Score Synthesis
+
+A critical architectural vulnerability of the Neal.fun game engine is the total absence of coordinate bounding checks. The `coords(t)` function linearly maps viewport pixels without enforcing $[0, 1000]$ clamping:
+
+$$\text{logicalX} = \frac{\text{clientX} - \text{rect.left}}{\text{rect.width}} \cdot 1000$$
+
+Because the browser's SVG element clips out-of-bounds graphics, tracing paths at $R \ge 2000\,\text{px}$ renders zero visible pixels on screen.
+
+Furthermore, by solving for radius $r$ as a function of target accuracy $k = \frac{\text{Target}}{100}$:
+$$r = o \cdot (2 - k)$$
+
+An arbitrary desired score (e.g. $99.9\%$, $77.7\%$, $50.0\%$, $0.0\%$) can be deterministically synthesized on a completely transparent, blank canvas. The implementation is provided in [`phantom_circle.js`](phantom_circle.js) and analyzed in [`PHANTOM_CIRCLE.md`](PHANTOM_CIRCLE.md).
+

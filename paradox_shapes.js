@@ -25,20 +25,39 @@
         return;
     }
 
-    // 1. Traverse Vue instance safely without circular references
-    const root = document.querySelector("#__nuxt")?.__vue__;
-    function getGameVm(vm) {
-        if (!vm) return null;
-        if ("score" in vm && "onComplete" in vm) return vm;
-        if (vm.$children) {
-            for (const child of vm.$children) {
-                const found = getGameVm(child);
-                if (found) return found;
+    // 1. Traverse Vue instance safely using iterative BFS with cycle detection
+    function getGameVm() {
+        const rootVue = document.querySelector("#__nuxt")?.__vue__;
+        const queue = [];
+        const visited = new Set();
+
+        if (rootVue) {
+            queue.push(rootVue);
+        } else {
+            const rootElem = document.body;
+            if (rootElem?.__vue__) queue.push(rootElem.__vue__);
+        }
+
+        while (queue.length > 0) {
+            const curr = queue.shift();
+            if (!curr || visited.has(curr)) continue;
+            visited.add(curr);
+
+            if ("score" in curr && "onComplete" in curr) {
+                return curr;
+            }
+
+            if (curr.$children && Array.isArray(curr.$children)) {
+                for (const child of curr.$children) {
+                    if (child && !visited.has(child)) {
+                        queue.push(child);
+                    }
+                }
             }
         }
         return null;
     }
-    const gm = getGameVm(root);
+    const gm = getGameVm();
 
     // 2. Clear lingering state & neutralize CSS spin animation
     drawContainer.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));

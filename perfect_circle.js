@@ -20,26 +20,39 @@
         return;
     }
 
-    // 1. Locate Vue instance to inspect and stabilize internal state
-    function findGameComponent(node) {
-        if (!node) return null;
-        if (node.__vue__) {
-            const vm = node.__vue__;
-            if ("score" in vm && "onComplete" in vm) return vm;
-            if (vm.$children) {
-                for (const child of vm.$children) {
-                    const found = findGameComponent(child.$el || child);
-                    if (found) return found;
+    // 1. Locate Vue instance safely using iterative BFS with cycle detection
+    function findGameComponent() {
+        const rootVue = document.querySelector("#__nuxt")?.__vue__;
+        const queue = [];
+        const visited = new Set();
+
+        if (rootVue) {
+            queue.push(rootVue);
+        } else {
+            const rootElem = document.body;
+            if (rootElem?.__vue__) queue.push(rootElem.__vue__);
+        }
+
+        while (queue.length > 0) {
+            const curr = queue.shift();
+            if (!curr || visited.has(curr)) continue;
+            visited.add(curr);
+
+            if ("score" in curr && "onComplete" in curr) {
+                return curr;
+            }
+
+            if (curr.$children && Array.isArray(curr.$children)) {
+                for (const child of curr.$children) {
+                    if (child && !visited.has(child)) {
+                        queue.push(child);
+                    }
                 }
             }
         }
-        for (const child of node.children || []) {
-            const found = findGameComponent(child);
-            if (found) return found;
-        }
         return null;
     }
-    const vm = findGameComponent(document.body);
+    const vm = findGameComponent();
 
     // 2. Clear any lingering draw state
     drawContainer.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
