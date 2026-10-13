@@ -37,7 +37,7 @@ flowchart TD
 - **Radial Accuracy ($k_i$)**:
   $$k_i = \max\left(0,\, 1 - \frac{\left|\frac{r_i + r_{i-1}}{2} - o\right|}{o}\right)$$
 - **Score Calculation**:
-  $$\text{Score} = \min\left(999,\, \operatorname{round}\left(1000 \cdot \frac{\sum w_i k_i}{\sum w_i}\right)\right)$$
+  $$\text{Score} = \min\left(999,\, \text{round}\left(1000 \cdot \frac{\sum w_i k_i}{\sum w_i}\right)\right)$$
   The displayed percentage string is formatted via `(this.score / 10).toFixed(1) + "%"`. Thus, `score = 999` renders as **`99.9%`**, the theoretical maximum of the vanilla engine.
 
 ---
@@ -51,7 +51,7 @@ When synthetic `MouseEvent` instances pass through the browser rendering pipelin
 $$\Delta_{\text{SVG}} = \Delta_{\text{viewport}} \cdot \frac{1000}{W_{\text{element}}} \approx 1.0 \cdot \frac{1000}{650} \approx 1.54\,\text{px}$$
 
 Because $k_i$ depends on the mean radius $\frac{r_i + r_{i-1}}{2}$ relative to $o$, persistent subpixel variance degrades the cumulative ratio:
-$$\frac{c}{d} \approx 0.9982 \implies \operatorname{round}(1000 \cdot 0.9982) = 998 \implies \mathbf{99.8\%}$$
+$$\frac{c}{d} \approx 0.9982 \implies \text{round}(1000 \cdot 0.9982) = 998 \implies \mathbf{99.8\%}$$
 
 ### 3.2 The Sample Discard Filter ($h < 6\,\text{px}$)
 When micro-stepping angles (e.g. $\Delta\theta = 0.8^\circ$ at $R = 320\,\text{px}$):
