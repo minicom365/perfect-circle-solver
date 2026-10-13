@@ -1,0 +1,11 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Python / Scratch
+__pycache__/
+*.pyc
+scratch/
